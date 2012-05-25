@@ -1,0 +1,17 @@
+#!/bin/shell
+
+function agit {
+  modified=`git status | grep modified | awk '{print $3}'`
+  modified_count=`git status | grep --count modified`
+
+  deleted=`git status | grep modified | awk '{print $3}'`
+  deleted_count=`git status | grep --count modified`
+
+  if [ "$1" = "add" ];then
+    echo "add"
+  elif [ "$1" = "status" ];then
+    for ((i=1; i<$modified_count+1; i++)) do
+    done
+  fi
+}
+
