@@ -1,17 +1,80 @@
-#!/bin/shell
+#!/bin/sh
 
 function agit {
-  modified=`git status | grep modified | awk '{print $3}'`
-  modified_count=`git status | grep --count modified`
+	modified=`git status | grep modified | awk '{print $3}'`
+	modified_count=`git status | grep --count modified`
 
-  deleted=`git status | grep modified | awk '{print $3}'`
-  deleted_count=`git status | grep --count modified`
+	deleted=`git status | grep deleted | awk '{print $3}'`
+	deleted_count=`git status | grep --count deleted`
 
-  if [ "$1" = "add" ];then
-    echo "add"
-  elif [ "$1" = "status" ];then
-    for ((i=1; i<$modified_count+1; i++)) do
-    done
-  fi
+	o=0
+	for i in $modified;do
+		file_array["$o"]=$i
+		o=`expr $o + 1`
+	done
+
+	for i in $deleted;do
+		file_array["$o"]=$i
+		o=`expr $o + 1`
+	done
+
+	if [ "$1" = "add" ];then
+		for i in ${@:2};do
+			git add ${file_array[$i]}
+		done
+
+	elif [ "$1" = "reset" ];then
+		if [ "$2" = "head" ];then
+			for i in ${@:3};do
+				git reset head ${file_array[$i]}
+			done
+		fi
+
+	elif [ "$1" = "status" ];then
+		if [ -z "$2" ];then
+			echo `git status | head -1`
+			echo "# Changed but not updated:"
+			echo "#   (use 'git add/rm <file_id>...' to update what will be committed)"
+			echo "#   (use 'git checkout -- <file_id>...' to discard changes in working directory)"
+			i=0
+			if [ $modified_count != 0 ];then
+				echo "#"
+				for (( i=$i; i < ${#file_array[@]}; i++ )) do
+					if [ $i = $modified_count ];then
+						break
+					fi
+					echo "#       `tput setaf 1`($i) - modified:   ${file_array[$i]}`tput sgr0`"
+				done
+			fi
+
+			if [ $deleted_count != 0 ];then
+				echo "#"
+				for (( i=$i; i < ${#file_array[@]}; i++ )) do
+					echo "#       `tput setaf 1`($i) - deleted:    ${file_array[$i]}`tput sgr0`"
+				done
+			fi
+		else
+			git status ${file_array[$2]}
+		fi
+
+	elif [ "$1" = "diff" ];then
+		if [ -z "$2" ];then
+			git diff
+		else
+			git diff ${file_array[$2]}
+		fi
+	else
+		git ${@:1}
+	fi
+
+	tput sgr0
+
+	modified=""
+	modified_count=""
+
+	file_array=""
+
+	deleted=""
+	deleted_count=""
 }
 
