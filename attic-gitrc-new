@@ -1,38 +1,5 @@
 #!/bin/bash
-
-# function gitu {
-#   trigger=0
-#   i=1
-#   git status | while read line
-#   do
-
-#     if [ "$line" = '# Changes not staged for commit:' ];then
-#       trigger=0
-#     elif [ "$line" = '# Untracked files:' ];then
-#       trigger=0
-#     fi
-
-#     if [ "$trigger" = 1 ];then
-#       if [ "$line" = '#' ];then
-#       else
-#         staged_array[$i]=`printf "%s\n" "$line" | grep -i modi | awk '{print $3}'`
-#         i=`expr $i + 1`
-#       fi
-#     fi
-
-#     if [ "$line" = '#   (use "git reset HEAD <file>..." to unstage)' ];then
-#       trigger=1
-#     fi
-#   done
-
-#   echo $staged_array[2]
-# }
-
 function agit {
-	# modified_count=`git status | grep --count modified`
-
-	# deleted_count=`git status | grep --count deleted`
-
   staged_count=0
 	modified_count=0
 	deleted_count=0
@@ -84,11 +51,11 @@ function agit {
       echo "# Changes to be commited"
       echo "#   (use 'agit reset head to <file_id>...' to unstage)"
       while [ $function_count != $staged_count ];do
+        tag=`git status | grep ${file_array[$function_count+1]} | head -n 1 | cut -f 2`
         if [ $function_count -lt 10 ];then
-          tag=`git status | grep ${file_array[$function_count+1]} | awk '{print $2}'`
-          echo "#       `tput setaf 2`(`expr $function_count + 1`)  - $tag   ${file_array[$function_count+1]}`tput sgr0`"
+          echo "#       `tput setaf 2`(`expr $function_count + 1`)  - $tag`tput sgr0`"
         else
-          echo "#       `tput setaf 2`(`expr $function_count + 1`) - $tag   ${file_array[$function_count+1]}`tput sgr0`"
+          echo "#       `tput setaf 2`(`expr $function_count + 1`) - $tag`tput sgr0`"
         fi
         function_count=`expr $function_count + 1`
       done
@@ -135,133 +102,6 @@ function agit {
         function_count=`expr $function_count + 1`
       done
     fi
+    tput sgr0
   }
-
-  # git status | while read line
-  # do
-  #   if [ "$line" = '# Changes not staged for commit:' ];then
-  #     trigger=0
-  #   elif [ "$line" = '# Untracked files:' ];then
-  #     trigger=0
-  #   fi
-
-  #   if [ "$trigger" = 1 ];then
-  #     if [ "$line" = '#' ];then
-  #     else
-  #       staged_array[$i]=`printf "%s\n" "$line" | grep -i modi | awk '{print $3}'`
-  #       i=`expr $i + 1`
-  #       staged_count=$i
-  #     fi
-  #   fi
-
-  #   if [ "$line" = '#   (use "git reset HEAD <file>..." to unstage)' ];then
-  #     trigger=1
-  #   fi
-  # done
-
-  # o=1
-
-  # git status |
-  # grep modified |
-  # awk '{print $3}' |
-  # while read line
-  # do
-  #   new_array2[$o]=$line
-  #   o=`expr $o + 1`
-  # done
-
-  # git status |
-  # grep deleted |
-  # awk '{print $3}' |
-  # while read line
-  # do
-  #   new_array2[$o]=$line
-  #   o=`expr $o + 1`
-  # done
-
-  # git status | grep -v modified |
-  # grep -v deleted |
-  # grep -v "untracked files:" |
-  # grep -v '(use "git' |
-  # grep -v "on branch" |
-  # grep -v "changes not sta" |
-  # grep -v "no changes added to commit" |
-  # awk '{print $2}' |
-  # tail -n -2 |
-  # while read line
-  # do
-  #   new_array2[$o]=$line
-  #   o=`expr $o + 1`
-  #   unstaged_count=`expr $unstaged_count + 1`
-  # done
-
-	# if [ "$1" = "add" ];then
-	# 	for i in ${@:2};do
-	# 		git add ${new_array2[$i]}
-	# 	done
-
-	# elif [ "$1" = "reset" ];then
-	# 	if [ "$2" = "head" ];then
-	# 		for i in ${@:3};do
-	# 			git reset head ${new_array2[$i]}
-	# 		done
-	# 	fi
-
-	# elif [ "$1" = "status" ];then
-	# 	if [ -z "$2" ];then
-	# 		echo `git status | head -1`
-
-      # if [ $staged_count != 1 ];then
-        # staged_loop=1
-        # echo "# Changes to be commited"
-        # echo "#   (use 'agit reset head to <file_id>...' to unstage)"
-        # while [ "$staged_loop" != "$staged_count" ];do
-          # echo "#       `tput setaf 2`($staged_loop) - modified:   ${staged_array[$staged_loop]}`tput sgr0`"
-          # staged_loop=`expr $staged_loop + 1`
-        # done
-        # echo "#"
-      # fi
-
-	# 		echo "# Changed but not updated:"
-	# 		echo "#   (use 'agit add/rm <file_id>...' to update what will be committed)"
-	# 		echo "#   (use 'agit checkout -- <file_id>...' to discard changes in working directory)"
-	# 		i=1
-	# 		if [ $modified_count != 0 ];then
-	# 			echo "#"
-        # while [ $i -lt `expr $modified_count + 1` ];do
-          # echo "#       `tput setaf 1`($i) - modified:   ${new_array2[$i]}`tput sgr0`"
-          # i=`expr $i + 1`
-        # done
-	# 		fi
-
-	# 		if [ $deleted_count != 0 ];then
-	# 			echo "#"
-        # while [ $i -lt `expr $modified_count + $deleted_count + 1` ];do
-          # echo "#       `tput setaf 1`($i) - deleted:    ${new_array2[$i]}`tput sgr0`"
-          # i=`expr $i + 1`
-        # done
-	# 		fi
-
-	# 		if [ $unstaged_count != 0 ];then
-	# 			echo "#"
-        # echo "# Untracked files:"
-        # echo "#   (use 'agit add <file_id>...' to update what will be committed)"
-        # while [ $i -lt `expr $modified_count + $deleted_count + $unstaged_count + 1` ];do
-          # echo "#       `tput setaf 1`($i) - untracked:   ${new_array2[$i]}`tput sgr0`"
-          # i=`expr $i + 1`
-        # done
-	# 		fi
-	# 	fi
-
-	# elif [ "$1" = "diff" ];then
-	# 	if [ -z "$2" ];then
-	# 		git diff
-	# 	else
-	# 		git diff ${new_array2[$2]}
-	# 	fi
-	# else
-	# 	git ${@:1}
-	# fi
-
-	# tput sgr0
 }
