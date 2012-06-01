@@ -4,26 +4,30 @@ function agit {
 	modified_count=0
 	deleted_count=0
   untracked_count=0
-  array_count=1
+  selected_count=0
+  option_count=0
+  array_count=0
 
   git diff --name-only --cached | while read line
   do
-    file_array[$array_count]=$line
+    file_array[$array_count+1]=$line
     staged_count=`expr $staged_count + 1`
     array_count=`expr $array_count + 1`
   done
 
-  git ls-files -m | while read line
+  git diff --name-status | while read line
   do
-    file_array[$array_count]=$line
-    modified_count=`expr $modified_count + 1`
-    array_count=`expr $array_count + 1`
+    if [ "$line[1]" = "M" ];then
+      file_array[$array_count+1]=$line[2]
+      modified_count=`expr $modified_count + 1`
+      array_count=`expr $array_count + 1`
+    fi
   done
   modified_count=`expr $modified_count + $staged_count`
 
   git ls-files -d | while read line
   do
-    file_array[$array_count]=$line
+    file_array[$array_count+1]=$line
     deleted_count=`expr $deleted_count + 1`
     array_count=`expr $array_count + 1`
   done
@@ -31,17 +35,29 @@ function agit {
 
   git ls-files --other --exclude-standard | while read line
   do
-    file_array[$array_count]=$line
+    file_array[$array_count+1]=$line
     untracked_count=`expr $untracked_count + 1`
     array_count=`expr $array_count + 1`
   done
   untracked_count=`expr $untracked_count + $deleted_count`
 
+  for var in "$@"
+  do
+    if [[ "$var" =~ ^[0-9]+$ ]];then
+      selected_array[$selected_count+1]=${file_array[$var]}
+      selected_count=`expr $selected_count + 1`
+    else
+      selected_array[$selected_count+1]=$var
+      selected_count=`expr $selected_count + 1`
+    fi
+  done
 
-  if [ $1 = "status" ];then
+  if [ -z "$1" ];then
+    git
+  elif [ $1 = "status" ];then
     agitstatus
   else
-    echo "foo"
+    git $selected_array[@]
   fi
 
   function agitstatus {
@@ -60,7 +76,6 @@ function agit {
         function_count=`expr $function_count + 1`
       done
     fi
-
 
     if [ $modified_count != 0 ];then
       echo "#"
@@ -104,4 +119,6 @@ function agit {
     fi
     tput sgr0
   }
+  selected_array=( )
+  file_array=( )
 }
