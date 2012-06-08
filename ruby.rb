@@ -53,7 +53,7 @@ module Attic
       @file_obj = Attic::Agit.new
       case ARGV[0]
       when "status"
-	status
+	      status
       else
         set_args
         other
@@ -63,11 +63,7 @@ module Attic
     def self.row(obj, name)
       if obj.count > 0
         obj.each do |o|
-          if name == "mod"
-            puts "#       "+Attic::Text.green('('+@count.to_s+') - modified: '+o.to_s)
-          else
-            puts "#       "+Attic::Text.red('('+@count.to_s+') - deleted : '+o.to_s)
-          end
+          puts "#       "+Attic::Text.red('('+@count.to_s+') - '+name+' : '+o.to_s)
           @count += 1
         end
       end
@@ -92,16 +88,16 @@ module Attic
         end
         puts "#\n"
       end
-      
+
       if @file_obj.modified.count > 0 || @file_obj.deleted.count > 0
         puts "# Changesp not staged for commited:"
         puts "#   (use \"git add/rm <file>...\" to update what will be committed)"
         puts "#   (use \"git checkout -- <file>...\" to discard changes in working directory)\n#\n"
       end
-      
-      row(@file_obj.modified, "mod")
-      row(@file_obj.deleted, "del")
-      
+
+      row(@file_obj.modified, "modified")
+      row(@file_obj.deleted, "deleleted")
+
       if @file_obj.untracked.count > 0
         puts "#\n# Untracked files:"
         puts "#   (use \"git add <file>...\" to include in what will be committed)\n#\n"
@@ -123,7 +119,7 @@ module Attic
     end
 
     def self.other
-      %x[git #{@arg_list.to_s.gsub(/[,\]\["]/, "")}]
+      exec 'git '+@arg_list.to_s.gsub(/[,\]\["]/, "")
     end
   end
 end
