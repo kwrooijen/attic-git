@@ -119,7 +119,11 @@ module Attic
     end
 
     def self.other
-      exec 'git '+@arg_list.to_s.gsub(/[,\]\["]/, "")
+      if ARGV[0] == "commit" && ARGV[1] == "-m"
+        exec 'git commit -m "'+ARGV[2]+'"'
+      else
+        exec 'git '+@arg_list.to_s.gsub(/[,\]\["]/, "")
+      end
     end
   end
 end
